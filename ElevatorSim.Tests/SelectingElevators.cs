@@ -18,7 +18,7 @@ public class NearestElevatorTest
             new PassengerElevator(id: 3) { CurrentFloor = 9 }
         };
 
-        var selectedElevator = strategy.SelectElevator(elevators, requestedFloor: 6);
+        var selectedElevator = strategy.SelectElevator(elevators, requestedFloor: 14);
 
         Assert.NotNull(selectedElevator);
         Assert.Equal(2, selectedElevator.Id);
