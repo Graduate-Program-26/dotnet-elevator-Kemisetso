@@ -26,22 +26,21 @@ public class ElevatorController : IElevatorController
         if (floor < _minFloor || floor > _maxFloor)
         {
             throw new InvalidFloorException(floor, _minFloor, _maxFloor);
+        }
+        var remaining = passengerCount;
 
-            var remaining = passengerCount;
-
-            while (remaining > 0)
+        while (remaining > 0)
+        {
+            var elevator = _dispatch.SelectElevator(_elevators, floor);
+            if (elevator is null)
             {
-                var elevator = _dispatch.SelectElevator(_elevators, floor);
-                if (elevator is null)
-                {
-                    break;
-                }
-
-                var canEnter = Math.Min(remaining, elevator.MaxCapacity - elevator.PassengerCount);
-                await elevator.MoveToFloor(floor);
-                elevator.BoardingPassengers(canEnter);
-                remaining -= canEnter;
+                break;
             }
+
+            var canEnter = Math.Min(remaining, elevator.MaxCapacity - elevator.PassengerCount);
+            await elevator.MoveToFloor(floor);
+            elevator.BoardingPassengers(canEnter);
+            remaining -= canEnter;
         }
     }
 }
