@@ -43,5 +43,25 @@ public class NearestElevatorTest
         Assert.NotNull(selectedElevator);
         Assert.Equal(2, selectedElevator.Id);
     }
+    [Fact]
+    public void SelectElevator_SkipsFullElevator()
+    {
+        var strategy = new NearestElevator();
+        var fullElevator = new PassengerElevator(id: 1)
+        {
+            CurrentFloor = 5
+        };
+        fullElevator.BoardingPassengers(fullElevator.MaxCapacity);
 
+        var elevators = new List<IElevator>
+        {
+            fullElevator,
+            new PassengerElevator(id: 2) { CurrentFloor = 3 }
+        };
+
+        var selectedElevator = strategy.SelectElevator(elevators, requestedFloor: 5);
+
+        Assert.NotNull(selectedElevator);
+        Assert.Equal(2, selectedElevator.Id);
+    }
 }
