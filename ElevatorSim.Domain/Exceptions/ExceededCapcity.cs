@@ -1,5 +1,3 @@
-using System.Dynamic;
-
 namespace ElevatorSim.Domain.Exceptions;
 
 public class CapacityExceededException : Exception
