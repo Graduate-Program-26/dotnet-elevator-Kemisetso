@@ -24,4 +24,24 @@ public class NearestElevatorTest
         Assert.Equal(2, selectedElevator.Id);
     }
 
+    [Fact]
+    public void SelectElevator_SkipsMovingElevator()
+    {
+        var strategy = new NearestElevator();
+        var elevators = new List<IElevator>
+        {
+            new PassengerElevator(id: 1)
+            {
+                CurrentFloor = 5,
+                State = ElevatorState.Moving
+            },
+            new PassengerElevator(id: 2) { CurrentFloor = 2 }
+        };
+
+        var selectedElevator = strategy.SelectElevator(elevators, requestedFloor: 5);
+
+        Assert.NotNull(selectedElevator);
+        Assert.Equal(2, selectedElevator.Id);
+    }
+
 }
