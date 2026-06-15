@@ -21,7 +21,7 @@ public class PassengerElevator : ElevatorBase
         while (CurrentFloor != floor)
         {
             CurrentFloor += Direction == ElevatorDirection.Up ? 1 : -1;
-            await Task.Delay(TravelDelay);
+            // await Task.Delay(TravelDelay);
         }
 
         Direction = ElevatorDirection.Stationary;
