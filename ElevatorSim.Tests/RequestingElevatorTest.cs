@@ -18,6 +18,19 @@ public class ElevatorControllerTests
         Assert.Equal(0, exception.RequestedFloor);
     }
 
+    [Fact]
+    public async Task RequestElevator_ThrowsWhenFloorIsAboveMaximum()
+    {
+        var controller = CreateController(minFloor: 1, maxFloor: 10);
+
+        var exception = await Assert.ThrowsAsync<InvalidFloorException>(
+            () => controller.RequestElevator(floor: 11, passengerCount: 1));
+
+        Assert.Equal(11, exception.RequestedFloor);
+    }
+
+
+
 
 
     private static ElevatorController CreateController(params IElevator[] elevators)
