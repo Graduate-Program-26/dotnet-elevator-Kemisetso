@@ -1,4 +1,7 @@
-﻿using ElevatorSim.Application.Interfaces;
+﻿using ElevatorSim.Application.Configuration;
+using ElevatorSim.Application.Interfaces;
+using ElevatorSim.Cons.Display;
+using ElevatorSim.Cons.Simulation;
 using ElevatorSim.Infrastructure.DependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -8,15 +11,8 @@ services.AddElevatorSimulation();
 var serviceProvider = services.BuildServiceProvider();
 
 var controller = serviceProvider.GetRequiredService<IElevatorController>();
+var settings = serviceProvider.GetRequiredService<BuildingSettings>();
+var display = new ConsoleStatusDisplay(settings);
+var app = new ElevatorSimulationApp(controller, settings, display);
 
-Console.WriteLine("=== Elevator Simulation ===");
-Console.WriteLine($"Fleet size: {controller.Elevators.Count}");
-Console.WriteLine();
-
-foreach (var elevator in controller.Elevators)
-{
-    Console.WriteLine(
-        $"Elevator {elevator.Id} | Floor {elevator.CurrentFloor,2} | " +
-        $"{elevator.Direction,-11} | {elevator.State,-10} | " +
-        $"Passengers {elevator.PassengerCount}/{elevator.MaxCapacity}");
-}
+await app.RunAsync();

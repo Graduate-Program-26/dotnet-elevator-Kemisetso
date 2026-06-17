@@ -1,4 +1,4 @@
-namespace ElevatorSim.cons.Display;
+namespace ElevatorSim.Cons.Display;
 
 using ElevatorSim.Application.Configuration;
 using ElevatorSim.Domain.Interfaces;
