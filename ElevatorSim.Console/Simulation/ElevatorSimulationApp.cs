@@ -57,9 +57,21 @@ public sealed class ElevatorSimulationApp
 
     private async Task HandleCallElevatorAsync()
     {
-        var floor = ReadFloor();
-        if (floor is null)
+        var pickupFloor = ReadFloor("Pickup floor");
+        if (pickupFloor is null)
         {
+            return;
+        }
+
+        var destinationFloor = ReadFloor("Destination floor");
+        if (destinationFloor is null)
+        {
+            return;
+        }
+
+        if (pickupFloor == destinationFloor)
+        {
+            Console.WriteLine("Pickup and destination floors must be different.");
             return;
         }
 
@@ -71,16 +83,21 @@ public sealed class ElevatorSimulationApp
 
         try
         {
-            Console.WriteLine($"Dispatching to floor {floor} for {passengers} passenger(s)...");
+            Console.WriteLine(
+                $"Dispatching to floor {pickupFloor} for {passengers} passenger(s) travelling to floor {destinationFloor}...");
 
             await RunWithLiveDisplayAsync(
-                () => _controller.RequestElevator(floor.Value, passengers.Value));
+                () => _controller.RequestElevator(pickupFloor.Value, destinationFloor.Value, passengers.Value));
 
             _display.Render(_controller.Elevators);
             PrintMenu();
-            Console.WriteLine($"Request for floor {floor} completed.");
+            Console.WriteLine($"Request for floor {pickupFloor} completed.");
         }
         catch (InvalidFloorException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        catch (NoAvailableElevatorException ex)
         {
             Console.WriteLine(ex.Message);
         }
@@ -88,11 +105,15 @@ public sealed class ElevatorSimulationApp
         {
             Console.WriteLine(ex.Message);
         }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
-    private int? ReadFloor()
+    private int? ReadFloor(string label)
     {
-        Console.Write($"Floor ({_settings.MinFloor}-{_settings.MaxFloor}): ");
+        Console.Write($"{label} ({_settings.MinFloor}-{_settings.MaxFloor}): ");
         var input = Console.ReadLine();
 
         if (!int.TryParse(input, out var floor))

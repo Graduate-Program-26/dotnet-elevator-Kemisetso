@@ -13,5 +13,7 @@ public interface IElevator
     bool IsAvailable { get; }
     Task MoveToFloor(int floor);
     void BoardingPassengers(int count);
+    void BoardingPassengers(int count, int destinationFloor);
+    int DisembarkAtCurrentFloor();
     void ExitingPassengers(int count);
 }

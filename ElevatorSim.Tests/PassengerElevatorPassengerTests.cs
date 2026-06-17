@@ -63,4 +63,19 @@ public class PassengerElevatorPassengerTests
 
         Assert.Equal(elevator.MaxCapacity, exception.MaxCapacity);
     }
+
+    [Fact]
+    public void DisembarkAtCurrentFloor_RemovesPassengersWithMatchingDestination()
+    {
+        var elevator = new PassengerElevator(id: 1)
+        {
+            CurrentFloor = 5
+        };
+        elevator.BoardingPassengers(count: 3, destinationFloor: 5);
+
+        var exited = elevator.DisembarkAtCurrentFloor();
+
+        Assert.Equal(3, exited);
+        Assert.Equal(0, elevator.PassengerCount);
+    }
 }
