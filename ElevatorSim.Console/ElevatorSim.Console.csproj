@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ElevatorSim.Application\ElevatorSim.Application.csproj" />
     <ProjectReference Include="..\ElevatorSim.Infrastructure\ElevatorSim.Infrastructure.csproj" />
   </ItemGroup>
