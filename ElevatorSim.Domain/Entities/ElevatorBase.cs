@@ -6,7 +6,9 @@ using ElevatorSim.Domain.Interfaces;
 
 public abstract class ElevatorBase : IElevator
 {
+    private readonly Dictionary<int, int> _passengersByDestination = new();
     private int _passengerCount;
+
     public int Id { get; }
     public int CurrentFloor { get; set; }
     public ElevatorDirection Direction { get; set; } = ElevatorDirection.Stationary;
@@ -30,9 +32,34 @@ public abstract class ElevatorBase : IElevator
     public void BoardingPassengers(int count)
     {
         if (_passengerCount + count > MaxCapacity)
+        {
             throw new CapacityExceededException(MaxCapacity);
+        }
 
         _passengerCount += count;
+    }
+
+    public void BoardingPassengers(int count, int destinationFloor)
+    {
+        if (_passengerCount + count > MaxCapacity)
+        {
+            throw new CapacityExceededException(MaxCapacity);
+        }
+
+        _passengerCount += count;
+        _passengersByDestination[destinationFloor] =
+            _passengersByDestination.GetValueOrDefault(destinationFloor) + count;
+    }
+
+    public int DisembarkAtCurrentFloor()
+    {
+        if (!_passengersByDestination.Remove(CurrentFloor, out var count))
+        {
+            return 0;
+        }
+
+        _passengerCount -= count;
+        return count;
     }
 
     public void ExitingPassengers(int count)

@@ -21,26 +21,52 @@ public class ElevatorController : IElevatorController
         _maxFloor = maxFloor;
     }
 
-    public async Task RequestElevator(int floor, int passengerCount)
+    public async Task RequestElevator(int pickupFloor, int destinationFloor, int passengerCount)
     {
-        if (floor < _minFloor || floor > _maxFloor)
+        ValidateFloor(pickupFloor, nameof(pickupFloor));
+        ValidateFloor(destinationFloor, nameof(destinationFloor));
+
+        if (pickupFloor == destinationFloor)
         {
-            throw new InvalidFloorException(floor, _minFloor, _maxFloor);
+            throw new ArgumentException(
+                "Pickup and destination floors must be different.",
+                nameof(destinationFloor));
         }
+
+        if (passengerCount <= 0)
+        {
+            throw new ArgumentException(
+                "Passenger count must be positive.",
+                nameof(passengerCount));
+        }
+
         var remaining = passengerCount;
 
         while (remaining > 0)
         {
-            var elevator = _dispatch.SelectElevator(_elevators, floor);
+            var elevator = _dispatch.SelectElevator(_elevators, pickupFloor);
             if (elevator is null)
             {
-                break;
+                throw new NoAvailableElevatorException(remaining);
             }
 
             var canEnter = Math.Min(remaining, elevator.MaxCapacity - elevator.PassengerCount);
-            await elevator.MoveToFloor(floor);
-            elevator.BoardingPassengers(canEnter);
+
+            await elevator.MoveToFloor(pickupFloor);
+            elevator.DisembarkAtCurrentFloor();
+            elevator.BoardingPassengers(canEnter, destinationFloor);
             remaining -= canEnter;
+
+            await elevator.MoveToFloor(destinationFloor);
+            elevator.DisembarkAtCurrentFloor();
+        }
+    }
+
+    private void ValidateFloor(int floor, string paramName)
+    {
+        if (floor < _minFloor || floor > _maxFloor)
+        {
+            throw new InvalidFloorException(floor, _minFloor, _maxFloor);
         }
     }
 }
