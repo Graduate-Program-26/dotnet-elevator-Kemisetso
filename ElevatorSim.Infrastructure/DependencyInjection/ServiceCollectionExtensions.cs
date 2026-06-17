@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
 
             IEnumerable<IElevator> elevators = Enumerable
                 .Range(1, buildingSettings.ElevatorCount)
-                .Select(id => (IElevator)new PassengerElevator(id));
+                .Select(id => (IElevator)new PassengerElevator(id, buildingSettings.TravelDelayMilliseconds));
 
             return new ElevatorController(
                 elevators,

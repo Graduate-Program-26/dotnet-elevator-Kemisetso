@@ -4,12 +4,15 @@ using ElevatorSim.Domain.Enums;
 
 public class PassengerElevator : ElevatorBase
 {
-    private const int defaultMaxCap = 10;
-    private const int TravelDelay = 500;
+    private const int DefaultMaxCapacity = 10;
+    private readonly int _travelDelayMilliseconds;
 
-    public override int MaxCapacity => defaultMaxCap;
+    public override int MaxCapacity => DefaultMaxCapacity;
 
-    public PassengerElevator(int id) : base(id) { }
+    public PassengerElevator(int id, int travelDelayMilliseconds = 0) : base(id)
+    {
+        _travelDelayMilliseconds = travelDelayMilliseconds;
+    }
 
     public override async Task MoveToFloor(int floor)
     {
@@ -21,12 +24,13 @@ public class PassengerElevator : ElevatorBase
         while (CurrentFloor != floor)
         {
             CurrentFloor += Direction == ElevatorDirection.Up ? 1 : -1;
-            // await Task.Delay(TravelDelay);
+            if (_travelDelayMilliseconds > 0)
+            {
+                await Task.Delay(_travelDelayMilliseconds);
+            }
         }
 
         Direction = ElevatorDirection.Stationary;
         State = ElevatorState.DoorsOpen;
-
-
     }
 }
