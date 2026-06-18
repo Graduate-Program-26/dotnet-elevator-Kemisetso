@@ -5,12 +5,12 @@ using ElevatorSim.Domain.Entities;
 using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Interfaces;
 
-public class NearestElevatorTest
+public class NearestElevatorStrategyTests
 {
     [Fact]
     public void SelectElevator_ReturnsNearestAvailableElevator()
     {
-        var strategy = new NearestElevator();
+        var strategy = new NearestElevatorStrategy();
         var elevators = new List<IElevator>
         {
             new PassengerElevator(id: 1) { CurrentFloor = 1 },
@@ -27,7 +27,7 @@ public class NearestElevatorTest
     [Fact]
     public void SelectElevator_SkipsMovingElevator()
     {
-        var strategy = new NearestElevator();
+        var strategy = new NearestElevatorStrategy();
         var elevators = new List<IElevator>
         {
             new PassengerElevator(id: 1)
@@ -46,7 +46,7 @@ public class NearestElevatorTest
     [Fact]
     public void SelectElevator_SkipsFullElevator()
     {
-        var strategy = new NearestElevator();
+        var strategy = new NearestElevatorStrategy();
         var fullElevator = new PassengerElevator(id: 1)
         {
             CurrentFloor = 5
@@ -68,7 +68,7 @@ public class NearestElevatorTest
     [Fact]
     public void SelectElevator_ReturnsNullWhenNoElevatorIsAvailable()
     {
-        var strategy = new NearestElevator();
+        var strategy = new NearestElevatorStrategy();
         var fullElevator = new PassengerElevator(id: 1);
         fullElevator.BoardingPassengers(fullElevator.MaxCapacity);
 
