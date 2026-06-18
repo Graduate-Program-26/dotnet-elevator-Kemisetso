@@ -8,8 +8,17 @@ using ElevatorSim.Domain.Interfaces;
 
 using Microsoft.Extensions.DependencyInjection;
 
+/// <summary>
+/// Registers elevator simulation services with dependency injection.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds the elevator simulation stack to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="configure">Optional callback to customize building settings.</param>
+    /// <returns>The same service collection for chaining.</returns>
     public static IServiceCollection AddElevatorSimulation(
         this IServiceCollection services,
         Action<BuildingSettings>? configure = null)
