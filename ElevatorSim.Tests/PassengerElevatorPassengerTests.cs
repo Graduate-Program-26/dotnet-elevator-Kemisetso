@@ -43,6 +43,27 @@ public class PassengerElevatorPassengerTests
     }
 
     [Fact]
+    public void GetMaxCapacity_Returns25ForFreightTripMode()
+    {
+        var elevator = new PassengerElevator(id: 1);
+
+        Assert.Equal(10, elevator.GetMaxCapacity());
+        Assert.Equal(10, elevator.GetMaxCapacity(ElevatorType.Normal));
+        Assert.Equal(10, elevator.GetMaxCapacity(ElevatorType.HighSpeed));
+        Assert.Equal(25, elevator.GetMaxCapacity(ElevatorType.Freight));
+    }
+
+    [Fact]
+    public void BoardingPassengers_FreightTripMode_AllowsUpTo25Passengers()
+    {
+        var elevator = new PassengerElevator(id: 1);
+
+        elevator.BoardingPassengers(count: 23, tripMode: ElevatorType.Freight);
+
+        Assert.Equal(23, elevator.PassengerCount);
+    }
+
+    [Fact]
     public void DisembarkAtCurrentFloor_RemovesPassengersWithMatchingDestination()
     {
         var elevator = new PassengerElevator(id: 1)

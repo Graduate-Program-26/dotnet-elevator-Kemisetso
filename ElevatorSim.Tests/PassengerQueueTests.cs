@@ -2,6 +2,7 @@ namespace ElevatorSim.Tests;
 
 using ElevatorSim.Application.Services;
 using ElevatorSim.Domain.Entities;
+using ElevatorSim.Domain.Enums;
 
 public class PassengerQueueTests
 {
@@ -62,5 +63,18 @@ public class PassengerQueueTests
         Assert.Equal(0, batchSize);
         Assert.Equal(5, queue.Remaining);
         Assert.True(queue.HasPending);
+    }
+
+    [Fact]
+    public void DequeueForElevator_FreightTripMode_AssignsUpTo25Passengers()
+    {
+        var queue = new PassengerQueue(passengerCount: 23);
+        var elevator = new PassengerElevator(id: 1);
+
+        var batchSize = queue.DequeueForElevator(elevator, ElevatorType.Freight);
+
+        Assert.Equal(23, batchSize);
+        Assert.Equal(0, queue.Remaining);
+        Assert.False(queue.HasPending);
     }
 }
