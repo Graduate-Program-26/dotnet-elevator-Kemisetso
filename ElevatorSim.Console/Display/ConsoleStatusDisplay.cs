@@ -1,9 +1,10 @@
 namespace ElevatorSim.Cons.Display;
 
+using System.Text;
+
 using ElevatorSim.Application.Configuration;
 using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Interfaces;
-using System.Text;
 
 public sealed class ConsoleStatusDisplay
 {
