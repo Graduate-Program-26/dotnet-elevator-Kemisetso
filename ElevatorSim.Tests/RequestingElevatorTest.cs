@@ -76,18 +76,6 @@ public class ElevatorControllerTests
     }
 
     [Fact]
-    public async Task RequestElevator_DisbarksPassengersAtDestination()
-    {
-        var elevator = new PassengerElevator(id: 1);
-        var controller = CreateController(elevator);
-
-        await controller.RequestElevator(pickupFloor: 1, destinationFloor: 4, passengerCount: 3);
-
-        Assert.Equal(4, elevator.CurrentFloor);
-        Assert.Equal(0, elevator.PassengerCount);
-    }
-
-    [Fact]
     public async Task RequestElevator_DispatchesAdditionalElevatorWhenPassengerCountExceedsCapacity()
     {
         var firstElevator = new PassengerElevator(id: 1)

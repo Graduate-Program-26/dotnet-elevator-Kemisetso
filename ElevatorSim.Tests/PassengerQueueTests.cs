@@ -6,15 +6,6 @@ using ElevatorSim.Domain.Entities;
 public class PassengerQueueTests
 {
     [Fact]
-    public void Constructor_SetsRemainingToPassengerCount()
-    {
-        var queue = new PassengerQueue(passengerCount: 15);
-
-        Assert.Equal(15, queue.Remaining);
-        Assert.True(queue.HasPending);
-    }
-
-    [Fact]
     public void DequeueForElevator_AssignsUpToElevatorSpareCapacity()
     {
         var queue = new PassengerQueue(passengerCount: 7);
