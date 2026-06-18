@@ -8,12 +8,17 @@ using ElevatorSim.Domain.Enums;
 public class PassengerElevator : ElevatorBase
 {
     private const int DefaultMaxCapacity = 10;
+    private const int FreightMaxCapacity = 25;
     private const int FreightDelayDivisor = 3;
     private const int HighSpeedDelayMilliseconds = 100;
 
     private readonly int _travelDelayMilliseconds;
 
     public override int MaxCapacity => DefaultMaxCapacity;
+
+    /// <inheritdoc />
+    public override int GetMaxCapacity(ElevatorType tripMode = ElevatorType.Normal) =>
+        tripMode == ElevatorType.Freight ? FreightMaxCapacity : DefaultMaxCapacity;
 
     /// <summary>
     /// Creates a passenger elevator.

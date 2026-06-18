@@ -24,6 +24,9 @@ public abstract class ElevatorBase : IElevator
 
     public abstract int MaxCapacity { get; }
 
+    /// <inheritdoc />
+    public virtual int GetMaxCapacity(ElevatorType tripMode = ElevatorType.Normal) => MaxCapacity;
+
     public bool IsAvailable => State == ElevatorState.Available || State == ElevatorState.DoorsOpen;
 
     /// <summary>
@@ -37,23 +40,25 @@ public abstract class ElevatorBase : IElevator
 
     public abstract Task MoveToFloor(int floor, ElevatorType tripMode = ElevatorType.Normal);
 
-    public void BoardingPassengers(int count)
+    public void BoardingPassengers(int count, ElevatorType tripMode = ElevatorType.Normal)
     {
-        if (_passengerCount + count > MaxCapacity)
+        var maxCapacity = GetMaxCapacity(tripMode);
+        if (_passengerCount + count > maxCapacity)
         {
-            throw new CapacityExceededException(MaxCapacity);
+            throw new CapacityExceededException(maxCapacity);
         }
 
         _passengerCount += count;
     }
 
     /// <inheritdoc />
-    /// <exception cref="CapacityExceededException">Thrown when boarding would exceed <see cref="MaxCapacity"/>.</exception>
-    public void BoardingPassengers(int count, int destinationFloor)
+    /// <exception cref="CapacityExceededException">Thrown when boarding would exceed effective capacity.</exception>
+    public void BoardingPassengers(int count, int destinationFloor, ElevatorType tripMode = ElevatorType.Normal)
     {
-        if (_passengerCount + count > MaxCapacity)
+        var maxCapacity = GetMaxCapacity(tripMode);
+        if (_passengerCount + count > maxCapacity)
         {
-            throw new CapacityExceededException(MaxCapacity);
+            throw new CapacityExceededException(maxCapacity);
         }
 
         _passengerCount += count;
