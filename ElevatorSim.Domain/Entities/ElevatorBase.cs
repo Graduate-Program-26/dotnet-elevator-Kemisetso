@@ -13,18 +13,22 @@ public abstract class ElevatorBase : IElevator
     private int _passengerCount;
 
     public int Id { get; }
+
     public int CurrentFloor { get; set; }
 
     public ElevatorDirection Direction { get; set; } = ElevatorDirection.Stationary;
+
     public ElevatorState State { get; set; } = ElevatorState.Available;
+
     public int PassengerCount => _passengerCount;
+
     public abstract int MaxCapacity { get; }
+
     public bool IsAvailable => State == ElevatorState.Available || State == ElevatorState.DoorsOpen;
 
     /// <summary>
     /// Creates an elevator at floor 1.
     /// </summary>
-    /// <param name="id">The unique identifier for this elevator.</param>
     public ElevatorBase(int id)
     {
         Id = id;
@@ -33,8 +37,6 @@ public abstract class ElevatorBase : IElevator
 
     public abstract Task MoveToFloor(int floor);
 
-    /// <inheritdoc />
-    /// <exception cref="CapacityExceededException">Thrown when boarding would exceed <see cref="MaxCapacity"/>.</exception>
     public void BoardingPassengers(int count)
     {
         if (_passengerCount + count > MaxCapacity)

@@ -5,74 +5,56 @@ using ElevatorSim.Domain.Exceptions;
 using ElevatorSim.Domain.Interfaces;
 
 /// <summary>
-/// Dispatches elevator requests and manages the full pickup-to-dropoff journey.
+/// Dispatches elevator requests and coordinates pickup-to-dropoff journeys.
 /// </summary>
 public class ElevatorController : IElevatorController
 {
-    private readonly IDispatch _dispatch;
+    private readonly IDispatchStrategy _dispatch;
     private readonly List<IElevator> _elevators;
-    private readonly int _minFloor;
-    private readonly int _maxFloor;
+    private readonly FloorManager _floorManager;
 
+    /// <inheritdoc />
     public IReadOnlyList<IElevator> Elevators => _elevators.AsReadOnly();
 
     /// <summary>
-    /// Creates a controller for the given elevators and floor range.
+    /// Creates a controller for the given elevators and floor validation.
     /// </summary>
-    public ElevatorController(IEnumerable<IElevator> elevators, IDispatch dispatch, int minFloor, int maxFloor)
+    /// <param name="elevators">The elevator fleet to manage.</param>
+    /// <param name="dispatch">The strategy used to select an elevator.</param>
+    /// <param name="floorManager">Validates floor numbers for requests.</param>
+    public ElevatorController(
+        IEnumerable<IElevator> elevators,
+        IDispatchStrategy dispatch,
+        FloorManager floorManager)
     {
         _elevators = elevators.ToList();
         _dispatch = dispatch;
-        _minFloor = minFloor;
-        _maxFloor = maxFloor;
+        _floorManager = floorManager;
     }
 
+    /// <inheritdoc />
     public async Task RequestElevator(int pickupFloor, int destinationFloor, int passengerCount)
     {
-        ValidateFloor(pickupFloor, nameof(pickupFloor));
-        ValidateFloor(destinationFloor, nameof(destinationFloor));
+        _floorManager.ValidateRequest(pickupFloor, destinationFloor, passengerCount);
 
-        if (pickupFloor == destinationFloor)
-        {
-            throw new ArgumentException(
-                "Pickup and destination floors must be different.",
-                nameof(destinationFloor));
-        }
+        var queue = new PassengerQueue(passengerCount);
 
-        if (passengerCount <= 0)
-        {
-            throw new ArgumentException(
-                "Passenger count must be positive.",
-                nameof(passengerCount));
-        }
-
-        var remaining = passengerCount;
-
-        while (remaining > 0)
+        while (queue.HasPending)
         {
             var elevator = _dispatch.SelectElevator(_elevators, pickupFloor);
             if (elevator is null)
             {
-                throw new NoAvailableElevatorException(remaining);
+                throw new NoAvailableElevatorException(queue.Remaining);
             }
 
-            var canEnter = Math.Min(remaining, elevator.MaxCapacity - elevator.PassengerCount);
+            var canEnter = queue.DequeueForElevator(elevator);
 
             await elevator.MoveToFloor(pickupFloor);
             elevator.DisembarkAtCurrentFloor();
             elevator.BoardingPassengers(canEnter, destinationFloor);
-            remaining -= canEnter;
 
             await elevator.MoveToFloor(destinationFloor);
             elevator.DisembarkAtCurrentFloor();
-        }
-    }
-
-    private void ValidateFloor(int floor, string paramName)
-    {
-        if (floor < _minFloor || floor > _maxFloor)
-        {
-            throw new InvalidFloorException(floor, _minFloor, _maxFloor);
         }
     }
 }

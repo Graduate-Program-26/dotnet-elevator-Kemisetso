@@ -111,9 +111,8 @@ public class ElevatorControllerTests
     {
         return new ElevatorController(
             elevators,
-            new NearestElevator(),
-            minFloor: 1,
-            maxFloor: 10);
+            new NearestElevatorStrategy(),
+            new FloorManager(minFloor: 1, maxFloor: 10));
     }
 
     private static ElevatorController CreateController(int minFloor, int maxFloor)
@@ -122,8 +121,7 @@ public class ElevatorControllerTests
 
         return new ElevatorController(
             [elevator],
-            new NearestElevator(),
-            minFloor,
-            maxFloor);
+            new NearestElevatorStrategy(),
+            new FloorManager(minFloor, maxFloor));
     }
 }

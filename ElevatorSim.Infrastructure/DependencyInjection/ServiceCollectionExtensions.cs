@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
     /// Adds the elevator simulation stack to the service collection.
     /// </summary>
     /// <param name="services">The service collection to configure.</param>
-    /// <param name="configure">callback to customize building settings.</param>
+    /// <param name="configure">Callback to customize building settings.</param>
     /// <returns>The same service collection for chaining.</returns>
     public static IServiceCollection AddElevatorSimulation(
         this IServiceCollection services,
@@ -27,21 +27,23 @@ public static class ServiceCollectionExtensions
         configure?.Invoke(settings);
 
         services.AddSingleton(settings);
-        services.AddSingleton<IDispatch, NearestElevator>();
+        services.AddSingleton(sp =>
+        {
+            var buildingSettings = sp.GetRequiredService<BuildingSettings>();
+            return new FloorManager(buildingSettings.MinFloor, buildingSettings.MaxFloor);
+        });
+        services.AddSingleton<IDispatchStrategy, NearestElevatorStrategy>();
         services.AddSingleton<IElevatorController>(serviceProvider =>
         {
-            var dispatch = serviceProvider.GetRequiredService<IDispatch>();
+            var dispatch = serviceProvider.GetRequiredService<IDispatchStrategy>();
+            var floorManager = serviceProvider.GetRequiredService<FloorManager>();
             var buildingSettings = serviceProvider.GetRequiredService<BuildingSettings>();
 
             IEnumerable<IElevator> elevators = Enumerable
                 .Range(1, buildingSettings.ElevatorCount)
                 .Select(id => (IElevator)new PassengerElevator(id, buildingSettings.TravelDelayMilliseconds));
 
-            return new ElevatorController(
-                elevators,
-                dispatch,
-                buildingSettings.MinFloor,
-                buildingSettings.MaxFloor);
+            return new ElevatorController(elevators, dispatch, floorManager);
         });
 
         return services;
