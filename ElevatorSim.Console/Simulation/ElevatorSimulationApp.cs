@@ -5,6 +5,9 @@ using ElevatorSim.Application.Interfaces;
 using ElevatorSim.Cons.Display;
 using ElevatorSim.Domain.Exceptions;
 
+/// <summary>
+/// Runs the interactive elevator simulation from the console.
+/// </summary>
 public sealed class ElevatorSimulationApp
 {
     private static readonly FooterLine MenuLine = FooterLine.Menu("Commands: [C]all elevator  [Q]uit");
@@ -13,6 +16,12 @@ public sealed class ElevatorSimulationApp
     private readonly BuildingSettings _settings;
     private readonly ConsoleStatusDisplay _display;
 
+    /// <summary>
+    /// Creates the simulation app with its dependencies.
+    /// </summary>
+    /// <param name="controller">The elevator controller to dispatch requests through.</param>
+    /// <param name="settings">Building configuration for floor validation and display.</param>
+    /// <param name="display">The console display to render status updates.</param>
     public ElevatorSimulationApp(
         IElevatorController controller,
         BuildingSettings settings,
@@ -23,6 +32,9 @@ public sealed class ElevatorSimulationApp
         _display = display;
     }
 
+    /// <summary>
+    /// Starts the simulation and processes user commands until quit.
+    /// </summary>
     public async Task RunAsync()
     {
         RenderScreen();

@@ -2,6 +2,9 @@ namespace ElevatorSim.Application.Services;
 
 using ElevatorSim.Domain.Interfaces;
 
+/// <summary>
+/// Picks the nearest available elevator with spare capacity.
+/// </summary>
 public class NearestElevator : IDispatch
 {
     public IElevator? SelectElevator(IReadOnlyList<IElevator> elevators, int requestedFloor)

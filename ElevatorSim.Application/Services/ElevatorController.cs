@@ -4,6 +4,9 @@ using ElevatorSim.Application.Interfaces;
 using ElevatorSim.Domain.Exceptions;
 using ElevatorSim.Domain.Interfaces;
 
+/// <summary>
+/// Dispatches elevator requests and manages the full pickup-to-dropoff journey.
+/// </summary>
 public class ElevatorController : IElevatorController
 {
     private readonly IDispatch _dispatch;
@@ -13,6 +16,9 @@ public class ElevatorController : IElevatorController
 
     public IReadOnlyList<IElevator> Elevators => _elevators.AsReadOnly();
 
+    /// <summary>
+    /// Creates a controller for the given elevators and floor range.
+    /// </summary>
     public ElevatorController(IEnumerable<IElevator> elevators, IDispatch dispatch, int minFloor, int maxFloor)
     {
         _elevators = elevators.ToList();
