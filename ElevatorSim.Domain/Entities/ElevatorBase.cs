@@ -35,7 +35,7 @@ public abstract class ElevatorBase : IElevator
         CurrentFloor = 1;
     }
 
-    public abstract Task MoveToFloor(int floor);
+    public abstract Task MoveToFloor(int floor, ElevatorType tripMode = ElevatorType.Normal);
 
     public void BoardingPassengers(int count)
     {

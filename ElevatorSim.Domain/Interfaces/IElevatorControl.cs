@@ -15,5 +15,5 @@ public interface IElevatorControl
     bool IsAvailable { get; }
 
     /// <summary>Moves the elevator to the requested floor.</summary>
-    Task MoveToFloor(int floor);
+    Task MoveToFloor(int floor, ElevatorType tripMode = ElevatorType.Normal);
 }
