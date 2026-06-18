@@ -111,6 +111,28 @@ public class ElevatorControllerTests
         Assert.Equal(10, elevator.CurrentFloor);
     }
 
+    [Fact]
+    public async Task RequestElevator_FreightTripMode_UsesSingleElevatorForUpTo25Passengers()
+    {
+        var firstElevator = new PassengerElevator(id: 1) { CurrentFloor = 1 };
+        var secondElevator = new PassengerElevator(id: 2) { CurrentFloor = 1 };
+        var thirdElevator = new PassengerElevator(id: 3) { CurrentFloor = 1 };
+        var controller = CreateController(firstElevator, secondElevator, thirdElevator);
+
+        await controller.RequestElevator(
+            pickupFloor: 1,
+            destinationFloor: 5,
+            passengerCount: 23,
+            tripMode: ElevatorType.Freight);
+
+        Assert.Equal(0, firstElevator.PassengerCount);
+        Assert.Equal(0, secondElevator.PassengerCount);
+        Assert.Equal(0, thirdElevator.PassengerCount);
+        Assert.Equal(5, firstElevator.CurrentFloor);
+        Assert.Equal(1, secondElevator.CurrentFloor);
+        Assert.Equal(1, thirdElevator.CurrentFloor);
+    }
+
     private static ElevatorController CreateController(params IElevator[] elevators)
     {
         return new ElevatorController(

@@ -1,5 +1,6 @@
 namespace ElevatorSim.Application.Services;
 
+using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Interfaces;
 
 /// <summary>
@@ -8,10 +9,13 @@ using ElevatorSim.Domain.Interfaces;
 public class NearestElevatorStrategy : IDispatchStrategy
 {
     /// <inheritdoc />
-    public IElevator? SelectElevator(IReadOnlyList<IElevator> elevators, int requestedFloor)
+    public IElevator? SelectElevator(
+        IReadOnlyList<IElevator> elevators,
+        int requestedFloor,
+        ElevatorType tripMode = ElevatorType.Normal)
     {
         return elevators
-            .Where(ele => ele.IsAvailable && ele.PassengerCount < ele.MaxCapacity)
+            .Where(ele => ele.IsAvailable && ele.PassengerCount < ele.GetMaxCapacity(tripMode))
             .OrderBy(ele => Math.Abs(ele.CurrentFloor - requestedFloor))
             .FirstOrDefault();
     }
