@@ -22,6 +22,7 @@ public class PassengerElevator : ElevatorBase
         _travelDelayMilliseconds = travelDelayMilliseconds;
     }
 
+    /// <inheritdoc />
     public override async Task MoveToFloor(int floor)
     {
         if (floor == CurrentFloor) { return; }
