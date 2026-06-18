@@ -94,4 +94,4 @@ The nearest available elevator is dispatched to floor 1, boards passengers, trav
 
 GitHub Actions runs on push to `dev` and on pull requests targeting `dev` or `main` — restore, format check, build, and test.
 
-## License
+
