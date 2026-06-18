@@ -6,16 +6,27 @@ using ElevatorSim.Application.Configuration;
 using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Interfaces;
 
+/// <summary>
+/// Renders the elevator shaft and status table to the console.
+/// </summary>
 public sealed class ConsoleStatusDisplay
 {
     private const int TableWidth = 72;
     private readonly BuildingSettings _settings;
 
+    /// <summary>
+    /// Creates a display bound to the given building settings.
+    /// </summary>
+    /// <param name="settings">Floor range and other building configuration.</param>
     public ConsoleStatusDisplay(BuildingSettings settings)
     {
         _settings = settings;
     }
 
+    /// <summary>
+    /// Clears the console and redraws the full elevator status screen.
+    /// </summary>
+    /// <param name="footerLines">Optional messages shown below the status table.</param>
     public void Render(IReadOnlyList<IElevator> elevators, params FooterLine[] footerLines)
     {
         Console.Clear();
