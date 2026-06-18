@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
     /// Adds the elevator simulation stack to the service collection.
     /// </summary>
     /// <param name="services">The service collection to configure.</param>
-    /// <param name="configure">Optional callback to customize building settings.</param>
+    /// <param name="configure">callback to customize building settings.</param>
     /// <returns>The same service collection for chaining.</returns>
     public static IServiceCollection AddElevatorSimulation(
         this IServiceCollection services,
