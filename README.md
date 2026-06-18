@@ -63,9 +63,10 @@ The status table refreshes automatically after every action and while elevators 
 
 ```
 > C
-Pickup floor (1-20): 1
-Destination floor (1-20): 8
-Passengers waiting: 4
+  Pickup floor (1-20): 1
+  Destination floor (1-20): 8
+  Trip mode [N]ormal [F]reight [H]igh-speed (Enter = normal):
+  Passengers waiting: 4
 ```
 
 The nearest available elevator is dispatched to floor 1, boards passengers, travels to floor 8, and disembarks them. If passenger count exceeds one elevator's capacity, additional elevators are dispatched automatically.
@@ -76,10 +77,10 @@ The nearest available elevator is dispatched to floor 1, boards passengers, trav
 - **Pickup and destination:** passengers board at a pickup floor and travel to a separate destination floor. Pickup and destination cannot be the same.
 - **Dispatch:** the nearest available elevator with spare capacity is selected. Moving or full elevators are skipped.
 - **Capacity:** each passenger elevator holds up to 10 passengers. Over-capacity requests dispatch multiple elevators in batches via `PassengerQueue`.
-- **Movement:** passenger elevators move one floor at a time. Travel delay is configurable via `BuildingSettings.TravelDelayMilliseconds` (default 3000 ms in the console, 0 ms in unit tests).
+- **Movement:** elevators move one floor at a time by default. Optional trip modes on each call: **F**reight (faster per-floor travel) or **H**igh-speed (jumps directly to the target floor). Press Enter for normal speed.
 - **Passenger lifecycle:** passengers disembark on arrival at their destination floor, freeing capacity for future requests.
 - **Unavailable fleet:** if no elevator can serve a request, a `NoAvailableElevatorException` is raised and displayed to the user.
-- **Elevator types:** `FreightElevator` and `HighSpeedElevator` are implemented in the domain layer for extensibility but are not yet registered in the default simulation fleet.
+- **Elevator types:** `FreightElevator` and `HighSpeedElevator` exist in the domain for extensibility (OCP/LSP). The default fleet uses `PassengerElevator` only; trip mode selects travel speed per request.
 
 ## Architecture Highlights
 

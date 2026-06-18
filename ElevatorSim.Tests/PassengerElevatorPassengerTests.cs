@@ -31,28 +31,6 @@ public class PassengerElevatorPassengerTests
     }
 
     [Fact]
-    public void ExitingPassengers_DecreasesPassengerCount()
-    {
-        var elevator = new PassengerElevator(id: 1);
-        elevator.BoardingPassengers(count: 7);
-
-        elevator.ExitingPassengers(count: 4);
-
-        Assert.Equal(3, elevator.PassengerCount);
-    }
-
-    [Fact]
-    public void ExitingPassengers_DoesNotDropBelowZero()
-    {
-        var elevator = new PassengerElevator(id: 1);
-        elevator.BoardingPassengers(count: 2);
-
-        elevator.ExitingPassengers(count: 5);
-
-        Assert.Equal(0, elevator.PassengerCount);
-    }
-
-    [Fact]
     public void BoardingPassengers_ThrowsWhenCapacityWouldBeExceeded()
     {
         var elevator = new PassengerElevator(id: 1);

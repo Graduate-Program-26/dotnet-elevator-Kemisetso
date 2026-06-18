@@ -19,7 +19,7 @@ public class FreightElevator : ElevatorBase
     {
     }
 
-    public override async Task MoveToFloor(int floor)
+    public override async Task MoveToFloor(int floor, ElevatorType tripMode = ElevatorType.Normal)
     {
         if (floor == CurrentFloor)
         {

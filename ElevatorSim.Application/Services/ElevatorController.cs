@@ -1,6 +1,7 @@
 namespace ElevatorSim.Application.Services;
 
 using ElevatorSim.Application.Interfaces;
+using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Exceptions;
 using ElevatorSim.Domain.Interfaces;
 
@@ -33,7 +34,11 @@ public class ElevatorController : IElevatorController
     }
 
     /// <inheritdoc />
-    public async Task RequestElevator(int pickupFloor, int destinationFloor, int passengerCount)
+    public async Task RequestElevator(
+        int pickupFloor,
+        int destinationFloor,
+        int passengerCount,
+        ElevatorType tripMode = ElevatorType.Normal)
     {
         _floorManager.ValidateRequest(pickupFloor, destinationFloor, passengerCount);
 
@@ -49,11 +54,11 @@ public class ElevatorController : IElevatorController
 
             var canEnter = queue.DequeueForElevator(elevator);
 
-            await elevator.MoveToFloor(pickupFloor);
+            await elevator.MoveToFloor(pickupFloor, tripMode);
             elevator.DisembarkAtCurrentFloor();
             elevator.BoardingPassengers(canEnter, destinationFloor);
 
-            await elevator.MoveToFloor(destinationFloor);
+            await elevator.MoveToFloor(destinationFloor, tripMode);
             elevator.DisembarkAtCurrentFloor();
         }
     }
