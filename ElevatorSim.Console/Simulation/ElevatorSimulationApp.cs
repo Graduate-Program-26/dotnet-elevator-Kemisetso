@@ -3,6 +3,7 @@ namespace ElevatorSim.Cons.Simulation;
 using ElevatorSim.Application.Configuration;
 using ElevatorSim.Application.Interfaces;
 using ElevatorSim.Cons.Display;
+using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Exceptions;
 
 /// <summary>
@@ -93,6 +94,13 @@ public sealed class ElevatorSimulationApp
             return;
         }
 
+        var tripMode = ReadTripMode(out var typeError);
+        if (typeError is not null)
+        {
+            RenderScreen(FooterLine.Error(typeError));
+            return;
+        }
+
         var passengers = ReadPassengerCount(out var passengerError);
         if (passengerError is not null)
         {
@@ -100,13 +108,18 @@ public sealed class ElevatorSimulationApp
             return;
         }
 
+        var tripLabel = tripMode == ElevatorType.Normal
+            ? string.Empty
+            : $" ({FormatTripMode(tripMode)} mode)";
+
         var statusMessage = FooterLine.Info(
-            $"Dispatching to floor {pickupFloor} for {passengers} passenger(s) travelling to floor {destinationFloor}...");
+            $"Dispatching to floor {pickupFloor}{tripLabel} for {passengers} passenger(s) " +
+            $"travelling to floor {destinationFloor}...");
 
         try
         {
             await RunWithLiveDisplayAsync(
-                () => _controller.RequestElevator(pickupFloor, destinationFloor, passengers),
+                () => _controller.RequestElevator(pickupFloor, destinationFloor, passengers, tripMode),
                 statusMessage);
 
             RenderScreen(FooterLine.Success($"Elevator request for floor {pickupFloor} completed."));
@@ -158,6 +171,39 @@ public sealed class ElevatorSimulationApp
         errorMessage = null;
         return count;
     }
+
+    private static ElevatorType ReadTripMode(out string? errorMessage)
+    {
+        Console.Write("  Trip mode [N]ormal [F]reight [H]igh-speed (Enter = normal): ");
+        var input = Console.ReadLine()?.Trim().ToUpperInvariant();
+
+        if (string.IsNullOrEmpty(input) || input == "N")
+        {
+            errorMessage = null;
+            return ElevatorType.Normal;
+        }
+
+        errorMessage = input switch
+        {
+            "F" => null,
+            "H" => null,
+            _ => "Invalid trip mode. Enter N, F, H, or press Enter for normal."
+        };
+
+        return input switch
+        {
+            "F" => ElevatorType.Freight,
+            "H" => ElevatorType.HighSpeed,
+            _ => ElevatorType.Normal
+        };
+    }
+
+    private static string FormatTripMode(ElevatorType tripMode) => tripMode switch
+    {
+        ElevatorType.Freight => "freight",
+        ElevatorType.HighSpeed => "high-speed",
+        _ => "normal"
+    };
 
     private async Task RunWithLiveDisplayAsync(Func<Task> action, FooterLine statusMessage)
     {
