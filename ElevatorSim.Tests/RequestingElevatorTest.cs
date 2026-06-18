@@ -2,6 +2,7 @@ namespace ElevatorSim.Tests;
 
 using ElevatorSim.Application.Services;
 using ElevatorSim.Domain.Entities;
+using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Exceptions;
 using ElevatorSim.Domain.Interfaces;
 
@@ -105,6 +106,21 @@ public class ElevatorControllerTests
         Assert.Equal(0, secondElevator.PassengerCount);
         Assert.Equal(1, firstElevator.CurrentFloor);
         Assert.Equal(1, secondElevator.CurrentFloor);
+    }
+
+    [Fact]
+    public async Task RequestElevator_HighSpeedTripMode_JumpsToDestination()
+    {
+        var elevator = new PassengerElevator(id: 1);
+        var controller = CreateController(elevator);
+
+        await controller.RequestElevator(
+            pickupFloor: 1,
+            destinationFloor: 10,
+            passengerCount: 1,
+            tripMode: ElevatorType.HighSpeed);
+
+        Assert.Equal(10, elevator.CurrentFloor);
     }
 
     private static ElevatorController CreateController(params IElevator[] elevators)

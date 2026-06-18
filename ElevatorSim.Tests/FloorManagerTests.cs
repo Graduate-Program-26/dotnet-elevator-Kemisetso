@@ -21,7 +21,7 @@ public class FloorManagerTests
     public void ValidateFloor_ThrowsWhenBelowMinimum()
     {
         var exception = Assert.Throws<InvalidFloorException>(
-            () => _floorManager.ValidateFloor(floor: 0, paramName: nameof(floor)));
+            () => _floorManager.ValidateFloor(floor: 0, paramName: "floor"));
 
         Assert.Equal(0, exception.RequestedFloor);
     }
@@ -30,7 +30,7 @@ public class FloorManagerTests
     public void ValidateFloor_ThrowsWhenAboveMaximum()
     {
         var exception = Assert.Throws<InvalidFloorException>(
-            () => _floorManager.ValidateFloor(floor: 21, paramName: nameof(floor)));
+            () => _floorManager.ValidateFloor(floor: 21, paramName: "floor"));
 
         Assert.Equal(21, exception.RequestedFloor);
     }
@@ -50,7 +50,7 @@ public class FloorManagerTests
         var exception = Assert.Throws<ArgumentException>(
             () => _floorManager.ValidateRequest(pickupFloor: 5, destinationFloor: 5, passengerCount: 2));
 
-        Assert.Equal(nameof(destinationFloor), exception.ParamName);
+        Assert.Equal("destinationFloor", exception.ParamName);
     }
 
     [Theory]
@@ -61,7 +61,7 @@ public class FloorManagerTests
         var exception = Assert.Throws<ArgumentException>(
             () => _floorManager.ValidateRequest(pickupFloor: 1, destinationFloor: 5, passengerCount));
 
-        Assert.Equal(nameof(passengerCount), exception.ParamName);
+        Assert.Equal("passengerCount", exception.ParamName);
     }
 
     [Fact]

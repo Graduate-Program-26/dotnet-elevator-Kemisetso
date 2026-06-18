@@ -35,6 +35,17 @@ public class PassengerElevatorMovementTests
     }
 
     [Fact]
+    public async Task MoveToFloor_HighSpeedTripMode_JumpsToTargetFloor()
+    {
+        var elevator = new PassengerElevator(id: 1);
+
+        await elevator.MoveToFloor(floor: 12, tripMode: ElevatorType.HighSpeed);
+
+        Assert.Equal(12, elevator.CurrentFloor);
+        Assert.Equal(ElevatorState.DoorsOpen, elevator.State);
+    }
+
+    [Fact]
     public async Task MoveToFloor_WhenTargetIsCurrentFloor_DoesNotChangeState()
     {
         var elevator = new PassengerElevator(id: 1);
