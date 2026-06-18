@@ -7,6 +7,8 @@ using ElevatorSim.Domain.Exceptions;
 
 public sealed class ElevatorSimulationApp
 {
+    private static readonly FooterLine MenuLine = FooterLine.Menu("Commands: [C]all elevator  [Q]uit");
+
     private readonly IElevatorController _controller;
     private readonly BuildingSettings _settings;
     private readonly ConsoleStatusDisplay _display;
@@ -23,12 +25,16 @@ public sealed class ElevatorSimulationApp
 
     public async Task RunAsync()
     {
-        _display.Render(_controller.Elevators);
-        PrintMenu();
+        RenderScreen();
+        await RunCommandLoopAsync();
+    }
 
+    private async Task RunCommandLoopAsync()
+    {
         while (true)
         {
-            Console.Write("> ");
+            Console.WriteLine();
+            Console.Write("  > ");
             var input = Console.ReadLine()?.Trim().ToUpperInvariant();
 
             if (string.IsNullOrEmpty(input))
@@ -41,15 +47,12 @@ public sealed class ElevatorSimulationApp
                 case "C":
                     await HandleCallElevatorAsync();
                     break;
-                case "S":
-                    _display.Render(_controller.Elevators);
-                    PrintMenu();
-                    break;
                 case "Q":
-                    Console.WriteLine("Goodbye.");
+                    Console.WriteLine();
+                    ConsoleUI.WriteLine("Goodbye.", MessageKind.Info, indent: 2);
                     return;
                 default:
-                    Console.WriteLine("Unknown command. Use C, S, or Q.");
+                    RenderScreen(FooterLine.Warning("Unknown command. Use C or Q."));
                     break;
             }
         }
@@ -57,92 +60,97 @@ public sealed class ElevatorSimulationApp
 
     private async Task HandleCallElevatorAsync()
     {
-        var pickupFloor = ReadFloor("Pickup floor");
-        if (pickupFloor is null)
+        Console.WriteLine();
+        var pickupFloor = ReadFloor("Pickup floor", out var pickupError);
+        if (pickupError is not null)
         {
+            RenderScreen(FooterLine.Error(pickupError));
             return;
         }
 
-        var destinationFloor = ReadFloor("Destination floor");
-        if (destinationFloor is null)
+        var destinationFloor = ReadFloor("Destination floor", out var destinationError);
+        if (destinationError is not null)
         {
+            RenderScreen(FooterLine.Error(destinationError));
             return;
         }
 
         if (pickupFloor == destinationFloor)
         {
-            Console.WriteLine("Pickup and destination floors must be different.");
+            RenderScreen(FooterLine.Error("Pickup and destination floors must be different."));
             return;
         }
 
-        var passengers = ReadPassengerCount();
-        if (passengers is null)
+        var passengers = ReadPassengerCount(out var passengerError);
+        if (passengerError is not null)
         {
+            RenderScreen(FooterLine.Error(passengerError));
             return;
         }
+
+        var statusMessage = FooterLine.Info(
+            $"Dispatching to floor {pickupFloor} for {passengers} passenger(s) travelling to floor {destinationFloor}...");
 
         try
         {
-            Console.WriteLine(
-                $"Dispatching to floor {pickupFloor} for {passengers} passenger(s) travelling to floor {destinationFloor}...");
-
             await RunWithLiveDisplayAsync(
-                () => _controller.RequestElevator(pickupFloor.Value, destinationFloor.Value, passengers.Value));
+                () => _controller.RequestElevator(pickupFloor, destinationFloor, passengers),
+                statusMessage);
 
-            _display.Render(_controller.Elevators);
-            PrintMenu();
-            Console.WriteLine($"Request for floor {pickupFloor} completed.");
+            RenderScreen(FooterLine.Success($"Elevator request for floor {pickupFloor} completed."));
         }
         catch (InvalidFloorException ex)
         {
-            Console.WriteLine(ex.Message);
+            RenderScreen(FooterLine.Error(ex.Message));
         }
         catch (NoAvailableElevatorException ex)
         {
-            Console.WriteLine(ex.Message);
+            RenderScreen(FooterLine.Error(ex.Message));
         }
         catch (CapacityExceededException ex)
         {
-            Console.WriteLine(ex.Message);
+            RenderScreen(FooterLine.Error(ex.Message));
         }
         catch (ArgumentException ex)
         {
-            Console.WriteLine(ex.Message);
+            RenderScreen(FooterLine.Error(ex.Message));
         }
     }
 
-    private int? ReadFloor(string label)
+    private int ReadFloor(string label, out string? errorMessage)
     {
-        Console.Write($"{label} ({_settings.MinFloor}-{_settings.MaxFloor}): ");
+        Console.Write($"  {label} ({_settings.MinFloor}-{_settings.MaxFloor}): ");
         var input = Console.ReadLine();
 
         if (!int.TryParse(input, out var floor))
         {
-            Console.WriteLine("Invalid floor. Enter a number.");
-            return null;
+            errorMessage = "Invalid floor. Enter a number.";
+            return 0;
         }
 
+        errorMessage = null;
         return floor;
     }
 
-    private int? ReadPassengerCount()
+    private int ReadPassengerCount(out string? errorMessage)
     {
-        Console.Write("Passengers waiting: ");
+        Console.Write("  Passengers waiting: ");
         var input = Console.ReadLine();
 
         if (!int.TryParse(input, out var count) || count <= 0)
         {
-            Console.WriteLine("Invalid passenger count. Enter a positive number.");
-            return null;
+            errorMessage = "Invalid passenger count. Enter a positive number.";
+            return 0;
         }
 
+        errorMessage = null;
         return count;
     }
 
-    private async Task RunWithLiveDisplayAsync(Func<Task> action)
+    private async Task RunWithLiveDisplayAsync(Func<Task> action, FooterLine statusMessage)
     {
         using var cancellationTokenSource = new CancellationTokenSource();
-        var displayTask = RefreshLoopAsync(cancellationTokenSource.Token);
+        var displayTask = RefreshLoopAsync(cancellationTokenSource.Token, statusMessage);
 
         try
         {
@@ -161,13 +169,13 @@ public sealed class ElevatorSimulationApp
         }
     }
 
-    private async Task RefreshLoopAsync(CancellationToken cancellationToken)
+    private async Task RefreshLoopAsync(CancellationToken cancellationToken, FooterLine statusMessage)
     {
         try
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                _display.Render(_controller.Elevators);
+                _display.Render(_controller.Elevators, statusMessage, FooterLine.Plain(string.Empty), MenuLine);
                 await Task.Delay(150, cancellationToken);
             }
         }
@@ -176,8 +184,12 @@ public sealed class ElevatorSimulationApp
         }
     }
 
-    private static void PrintMenu()
+    private void RenderScreen(params FooterLine[] messages)
     {
-        Console.WriteLine("Commands: [C]all elevator  [S]tatus  [Q]uit");
+        var footer = messages.Length > 0
+            ? messages.Append(FooterLine.Plain(string.Empty)).Append(MenuLine).ToArray()
+            : [MenuLine];
+
+        _display.Render(_controller.Elevators, footer);
     }
 }
