@@ -1,6 +1,6 @@
 namespace ElevatorSim.Cons.Display;
 
-public static class ConsoleUi
+public static class ConsoleUI
 {
     public static void WriteLine(string message, MessageKind kind = MessageKind.Plain, int indent = 0)
     {

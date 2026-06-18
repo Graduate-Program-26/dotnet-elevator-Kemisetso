@@ -19,27 +19,27 @@ public sealed class ConsoleStatusDisplay
     public void Render(IReadOnlyList<IElevator> elevators, params FooterLine[] footerLines)
     {
         Console.Clear();
-        ConsoleUi.WriteLine(new string('=', TableWidth), ConsoleColor.DarkCyan);
-        ConsoleUi.WriteLine("  ELEVATOR SIMULATION", ConsoleColor.Cyan);
-        ConsoleUi.WriteLine(
+        ConsoleUI.WriteLine(new string('=', TableWidth), ConsoleColor.DarkCyan);
+        ConsoleUI.WriteLine("  ELEVATOR SIMULATION", ConsoleColor.Cyan);
+        ConsoleUI.WriteLine(
             $"  Floors {_settings.MinFloor}-{_settings.MaxFloor}  |  Fleet size: {elevators.Count}",
             ConsoleColor.DarkGray,
             indent: 0);
-        ConsoleUi.WriteLine(new string('=', TableWidth), ConsoleColor.DarkCyan);
+        ConsoleUI.WriteLine(new string('=', TableWidth), ConsoleColor.DarkCyan);
         Console.WriteLine();
         RenderShaft(elevators);
-        ConsoleUi.WriteLine(
+        ConsoleUI.WriteLine(
             $"  {"ID",-4} {"Floor",-7} {"Direction",-14} {"State",-14} {"Load",-10}",
             ConsoleColor.Gray);
-        ConsoleUi.WriteLine($"  {new string('-', TableWidth - 2)}", ConsoleColor.DarkGray);
+        ConsoleUI.WriteLine($"  {new string('-', TableWidth - 2)}", ConsoleColor.DarkGray);
 
         foreach (var elevator in elevators)
         {
             var rowStyle = GetRowStyle(elevator);
-            ConsoleUi.WriteLine(
+            ConsoleUI.WriteLine(
                 $"  {elevator.Id,-4} {elevator.CurrentFloor,-7} {FormatDirection(elevator.Direction),-14} " +
                 $"{FormatState(elevator.State),-14} {elevator.PassengerCount}/{elevator.MaxCapacity}",
-                ConsoleUi.GetElevatorColor(rowStyle));
+                ConsoleUI.GetElevatorColor(rowStyle));
         }
 
         Console.WriteLine();
@@ -52,7 +52,7 @@ public sealed class ConsoleStatusDisplay
                 continue;
             }
 
-            ConsoleUi.WriteLine($"  {line.Text}", line.Kind, indent: 0);
+            ConsoleUI.WriteLine($"  {line.Text}", line.Kind, indent: 0);
         }
     }
 
@@ -66,8 +66,8 @@ public sealed class ConsoleStatusDisplay
             header.Append(Center($"E{elevator.Id}", columnWidth));
         }
 
-        ConsoleUi.WriteLine(header.ToString(), ConsoleColor.DarkGray);
-        ConsoleUi.WriteLine($"       +{new string('-', columnWidth * elevators.Count)}", ConsoleColor.DarkGray);
+        ConsoleUI.WriteLine(header.ToString(), ConsoleColor.DarkGray);
+        ConsoleUI.WriteLine($"       +{new string('-', columnWidth * elevators.Count)}", ConsoleColor.DarkGray);
 
         for (var floor = _settings.MaxFloor; floor >= _settings.MinFloor; floor--)
         {
@@ -79,7 +79,7 @@ public sealed class ConsoleStatusDisplay
                 row.Append(Center(cell, columnWidth));
             }
 
-            ConsoleUi.WriteLine(row.ToString(), ConsoleColor.White);
+            ConsoleUI.WriteLine(row.ToString(), ConsoleColor.White);
         }
 
         Console.WriteLine();

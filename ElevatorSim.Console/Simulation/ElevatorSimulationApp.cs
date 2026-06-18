@@ -49,7 +49,7 @@ public sealed class ElevatorSimulationApp
                     break;
                 case "Q":
                     Console.WriteLine();
-                    ConsoleUi.WriteLine("Goodbye.", MessageKind.Info, indent: 2);
+                    ConsoleUI.WriteLine("Goodbye.", MessageKind.Info, indent: 2);
                     return;
                 default:
                     RenderScreen(FooterLine.Warning("Unknown command. Use C or Q."));
