@@ -1,5 +1,6 @@
 namespace ElevatorSim.Application.Services;
 
+using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Interfaces;
 
 /// <summary>
@@ -27,9 +28,10 @@ public class PassengerQueue
     /// Removes the next boarding batch based on elevator spare capacity.
     /// </summary>
     /// <returns>The number of passengers assigned to this trip.</returns>
-    public int DequeueForElevator(IPassengerInteraction elevator)
+    public int DequeueForElevator(IPassengerInteraction elevator, ElevatorType tripMode = ElevatorType.Normal)
     {
-        var batchSize = Math.Min(_remaining, elevator.MaxCapacity - elevator.PassengerCount);
+        var maxCapacity = elevator.GetMaxCapacity(tripMode);
+        var batchSize = Math.Min(_remaining, maxCapacity - elevator.PassengerCount);
         _remaining -= batchSize;
         return batchSize;
     }

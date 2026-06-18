@@ -46,17 +46,17 @@ public class ElevatorController : IElevatorController
 
         while (queue.HasPending)
         {
-            var elevator = _dispatch.SelectElevator(_elevators, pickupFloor);
+            var elevator = _dispatch.SelectElevator(_elevators, pickupFloor, tripMode);
             if (elevator is null)
             {
                 throw new NoAvailableElevatorException(queue.Remaining);
             }
 
-            var canEnter = queue.DequeueForElevator(elevator);
+            var canEnter = queue.DequeueForElevator(elevator, tripMode);
 
             await elevator.MoveToFloor(pickupFloor, tripMode);
             elevator.DisembarkAtCurrentFloor();
-            elevator.BoardingPassengers(canEnter, destinationFloor);
+            elevator.BoardingPassengers(canEnter, destinationFloor, tripMode);
 
             await elevator.MoveToFloor(destinationFloor, tripMode);
             elevator.DisembarkAtCurrentFloor();
