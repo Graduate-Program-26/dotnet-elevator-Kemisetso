@@ -3,6 +3,7 @@ namespace ElevatorSim.Cons.Display;
 using ElevatorSim.Application.Configuration;
 using ElevatorSim.Domain.Enums;
 using ElevatorSim.Domain.Interfaces;
+using System.Text;
 
 public sealed class ConsoleStatusDisplay
 {
@@ -25,6 +26,7 @@ public sealed class ConsoleStatusDisplay
             indent: 0);
         ConsoleUi.WriteLine(new string('=', TableWidth), ConsoleColor.DarkCyan);
         Console.WriteLine();
+        RenderShaft(elevators);
         ConsoleUi.WriteLine(
             $"  {"ID",-4} {"Floor",-7} {"Direction",-14} {"State",-14} {"Load",-10}",
             ConsoleColor.Gray);
@@ -51,6 +53,35 @@ public sealed class ConsoleStatusDisplay
 
             ConsoleUi.WriteLine($"  {line.Text}", line.Kind, indent: 0);
         }
+    }
+
+    private void RenderShaft(IReadOnlyList<IElevator> elevators)
+    {
+        const int columnWidth = 8;
+
+        var header = new StringBuilder("       |");
+        foreach (var elevator in elevators)
+        {
+            header.Append(Center($"E{elevator.Id}", columnWidth));
+        }
+
+        ConsoleUi.WriteLine(header.ToString(), ConsoleColor.DarkGray);
+        ConsoleUi.WriteLine($"       +{new string('-', columnWidth * elevators.Count)}", ConsoleColor.DarkGray);
+
+        for (var floor = _settings.MaxFloor; floor >= _settings.MinFloor; floor--)
+        {
+            var row = new StringBuilder($"  {floor,4} |");
+
+            foreach (var elevator in elevators)
+            {
+                var cell = elevator.CurrentFloor == floor ? FormatCar(elevator) : ".";
+                row.Append(Center(cell, columnWidth));
+            }
+
+            ConsoleUi.WriteLine(row.ToString(), ConsoleColor.White);
+        }
+
+        Console.WriteLine();
     }
 
     private static ElevatorRowStyle GetRowStyle(IElevator elevator)
@@ -81,4 +112,22 @@ public sealed class ConsoleStatusDisplay
         ElevatorState.DoorsOpen => "Doors open",
         _ => "Available"
     };
+
+    private static string FormatCar(IElevator elevator)
+    {
+        var door = elevator.State == ElevatorState.DoorsOpen ? 'o' : '|';
+        return $"[{door}{elevator.Id}{door}]";
+    }
+
+    private static string Center(string text, int width)
+    {
+        if (text.Length >= width)
+        {
+            return text;
+        }
+
+        var leftPad = (width - text.Length) / 2;
+        var rightPad = width - text.Length - leftPad;
+        return new string(' ', leftPad) + text + new string(' ', rightPad);
+    }
 }
